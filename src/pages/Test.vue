@@ -292,7 +292,26 @@
                     this.succCount = succCount;
                     this.review = true;
                 }
-                if (this.pointer === 39) return;
+                if (this.pointer === 39) {
+                    const url = "";
+                    let data = {};
+                    let person = JSON.parse(localStorage.getItem('info'));
+                    data['person'] = person;
+                    data['test'] = this.result;
+                    fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: new Headers({
+                            'Content-Type': 'application/json'
+                        })
+                    }).then(res => {
+                        alert(res);
+                    })
+                        .catch(error => {
+                            console.error('Error:', error)
+                        });
+                    return;
+                }
 
                 this.pointer += 1;
                 this.before = true;
