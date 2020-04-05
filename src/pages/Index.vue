@@ -28,6 +28,7 @@
                             <el-button type="success" @click="submit">提交</el-button>
                         </el-form-item>
                     </el-form>
+<!--                    <el-button type="primary" @click="sendMessage">测试按钮</el-button>-->
                 </div>
             </div>
         </template>
@@ -72,6 +73,59 @@
                         }
                     }
                 )
+            },
+            sendMessage() {
+                let data = {};
+                data['person'] = JSON.parse(sessionStorage.getItem('person'));
+                data['result'] = [{
+                    answer: 'String',
+                    display: 'String',
+                    before: 'String',
+                    after: 'String',
+                    confidence: 'String',
+                    rate: 'String',
+                    sexual: 'String',
+                    reliability: 'String',
+                    recAns: 'String',
+                    spendTime: 10,
+                    spendTimeL: 10
+                },{
+                    answer: 'String',
+                    display: 'String',
+                    before: 'String',
+                    after: 'String',
+                    confidence: 'String',
+                    rate: 'String',
+                    sexual: 'String',
+                    reliability: 'String',
+                    recAns: 'String',
+                    spendTime: 10,
+                    spendTimeL: 10
+                },{
+                    answer: 'String',
+                    display: 'String',
+                    before: 'String',
+                    after: 'String',
+                    confidence: 'String',
+                    rate: 'String',
+                    sexual: 'String',
+                    reliability: 'String',
+                    recAns: 'String',
+                    spendTime: 10,
+                    spendTimeL: 10
+                }];
+                let url = "/api";
+                fetch(url, {
+                    method: 'POST',
+                    body: JSON.stringify(data),
+                    headers: new Headers({
+                        'Content-Type': 'application/json'
+                    })
+                }).then(res=>{
+                    console.log(res);
+                }).catch(err=>{
+                    console.log(err);
+                })
             }
         }
     }

@@ -1,7 +1,7 @@
 <template>
     <BasicLayout>
         <template v-slot:center v-if="isInit">
-            <div v-show="!finished">
+            <div v-show="!finished && !rest">
                 <div class="wrap">
                     <div class="box">
                         第{{ pointer +1 }}题
@@ -102,6 +102,9 @@
             <div v-show="finished" class="info">
                 恭喜你，完成了所有的测试！休息一下吧！
             </div>
+            <div v-show="rest" class="info">
+                恭喜你完成一半了，休息30秒先吧！
+            </div>
             </template>
     </BasicLayout>
 </template>
@@ -120,19 +123,17 @@
                 let answer = this.genAnum();
                 let display = this.mask(answer);
                 return {
-                    answer: answer,
-                    display : display,
-                    before: '',
-                    after: '',
-                    confidence: '',
-                    rate: '',
-                    // 推荐人的性别
-                    sexual: '',
-                    reliability: '',
-                    // 推荐的答案
-                    recAns: answer[4],
-                    spendTime: 0,
-                    spendTimeL: 0
+                    answer: answer, // 正确答案, 为五个数字
+                    display : display, // 展示 四个数字+？
+                    before: '', // 提示前选的数字
+                    after: '',  // 提示后的数字
+                    confidence: '', // 自信程度
+                    rate: '',   //相信程度
+                    sexual: '', // 推荐人的性别
+                    recAns: answer[4], // 视频推荐的答案
+                    reliability: '', // 可靠性high, low
+                    spendTime: 0,   // 初选耗时
+                    spendTimeL: 0   // 后面耗时
                 }
             });
 
@@ -210,6 +211,7 @@
         },
         data() {
             return {
+                rest: false,
                 finished: false,
                 succCount: 0,
                 review: false,
@@ -247,10 +249,18 @@
                 return res+"?";
             },
             closeCount() {
+                let self = this;
                 this.review = false;
                 this.succCount = 0;
-                if (this.pointer === 39) {
+                if (this.pointer >= 39) {
                     this.finished = true;
+                } else if (this.pointer === 20){
+                    self.rest = true;
+                    clearInterval(this.timeId);
+                    setTimeout(function () {
+                        self.rest = false;
+                        self.subTime(0);
+                    }, 30000);
                 } else {
                     this.subTime(0);
                 }
@@ -280,6 +290,7 @@
                     return;
                 }
 
+
                 if ((this.pointer + 1) % 5 === 0) {
                     let p = this.pointer;
                     let succCount = 0;
@@ -292,10 +303,12 @@
                     this.succCount = succCount;
                     this.review = true;
                 }
+
                 if (this.pointer === 39) {
-                    const url = "";
+                    clearInterval(this.timeId);
+                    const url = "/api";
                     let data = {};
-                    let person = JSON.parse(localStorage.getItem('info'));
+                    let person = JSON.parse(sessionStorage.getItem('person'));
                     data['person'] = person;
                     data['test'] = this.result;
                     fetch(url, {
@@ -305,9 +318,8 @@
                             'Content-Type': 'application/json'
                         })
                     }).then(res => {
-                        alert(res);
-                    })
-                        .catch(error => {
+                            console.log(res);
+                    }).catch(error => {
                             console.error('Error:', error)
                         });
                     return;
@@ -331,6 +343,7 @@
                     this.$message.warning("请选择信任度");
                     return;
                 }
+                clearInterval(this.timeId);
 
                 this.dialogVisable = true;
                 let video = document.getElementById("recVideo");

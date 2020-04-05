@@ -43,6 +43,21 @@
                         </div>
                     </div>
 
+                    <div v-show="before">
+                        <div class="prompt">
+                            你多大程度上信任自己的答案：
+                        </div>
+                        <div>
+                            <el-radio-group v-model="result[pointer].confidence" @change="giveRec">
+                                <template v-for="(item, index) in items">
+                                    <el-radio-button :label="index +1" :key="index"></el-radio-button>
+                                </template>
+                            </el-radio-group>
+                        </div>
+
+                        <div class="prompt"></div>
+                    </div>
+
                     <div v-show="!before">
                         <div class="prompt">
                             你的最终答案是？
@@ -81,7 +96,7 @@
                             :visible.sync="dialogVisable"
                             :before-close="handleClose"
                             center>
-                    <video :src="videoSrc" typeof="video/mp4" controls="controls"></video>
+                    <video slot="footer" class="el-dialog--center" :src="videoSrc" typeof="video/mp4" controls="controls"  width="480" height="480" ></video>
                 </el-dialog>
             </div>
         </template>
@@ -166,6 +181,18 @@
                 }, 1000);
             },
             giveRec() {
+                let pp = this.result[this.pointer];
+
+                if (!pp.before) {
+                    this.$message.warning("请选择答案");
+                    return;
+                };
+
+                if (!pp.confidence) {
+                    this.$message.warning("请选择信任度");
+                    return;
+                }
+
                 this.timeId ? clearInterval(this.timeId) : undefined;
                 this.timeId = undefined;
                 this.dialogVisable = true;
