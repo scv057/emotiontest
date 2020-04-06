@@ -136,6 +136,7 @@
                     spendTimeL: 0   // 后面耗时
                 }
             });
+            this.testType = JSON.parse(sessionStorage.getItem("person")).testType;
 
             let r = Math.random() < 0.5;
             for (let i = 0; i < 2; i++) {
@@ -211,6 +212,7 @@
         },
         data() {
             return {
+                testType: "",
                 rest: false,
                 finished: false,
                 succCount: 0,
@@ -230,8 +232,9 @@
             videoSrc: function () {
                 let pointer = this.pointer;
                 let person = this.result[pointer];
-                let url = "https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/"
-                url = `${url}${person.sexual}/${person.recAns}.mp4`;
+                let type = this.testType;
+                let url = "https://91happy.oss-cn-shenzhen.aliyuncs.com/"
+                url = `${url}${type}/${person.sexual}/${person.recAns}.mp4`;
                 return url;
             }
         },
@@ -309,8 +312,9 @@
                     const url = "/api";
                     let data = {};
                     let person = JSON.parse(sessionStorage.getItem('person'));
+                    person.testType === "videos" ? person.testType = 'human' : person.testType = 'wave';
                     data['person'] = person;
-                    data['test'] = this.result;
+                    data['result'] = this.result;
                     fetch(url, {
                         method: 'POST',
                         body: JSON.stringify(data),

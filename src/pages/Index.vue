@@ -54,7 +54,8 @@
                 info: {
                     name: "",
                     age: "",
-                    sexual: ""
+                    sexual: "",
+                    testType: ""
                 }
             }
         },
@@ -62,11 +63,12 @@
             submit(){
                 this.$refs['form'].validate(
                     (valid) =>{
-                        if (valid){
+                        if (valid) {
+                            window.location.href.match("test1") ? this.info.testType = "wave" : this.info.testType = "videos";
                             sessionStorage.setItem('person', JSON.stringify(this.info));
                             this.$message.info("点击登录后， 先开始3个练习题，然后才是正式答题。");
-                            setTimeout(()=>{
-                                    this.$router.push({path: 'try'})
+                            setTimeout(() => {
+                                this.$router.push({path: 'try'})
                             }, 2000)
                         } else {
                             this.$message.warning("请填写完个人信息");
