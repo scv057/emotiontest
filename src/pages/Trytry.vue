@@ -1,5 +1,5 @@
 <template>
-    <BasicLayout>
+    <BasicLayout style="background: white">
         <template v-slot:center>
             <div v-show="status === 'pre'" class="info">
                     接下来开始练习
@@ -9,26 +9,27 @@
             </div>
 
             <div v-if="status==='test'">
-                <div class="wrap">
-                    <div class="box">
-                        第{{ pointer + 1 }}题
-                    </div>
-
-                    <div class="box">
+                <div class="header">
+                    <div class="left">第{{ pointer +1 }}题</div>
+                    <div class="right">
                         答题倒计时
                         <div class="time">
                             {{ second }}
                         </div>秒
                     </div>
-
+                </div>
+                <hr>
+                <div class="wrap">
                     <div>
                         <div class="prompt">
                             请预测下一位数字是
                         </div>
-                        <div class="prompt">
-                            {{ result[pointer].display }}
+                        <div class="prompt blue">
+                            {{ result[pointer].display.split('').join('-') }}
                         </div>
                     </div>
+
+                    <div style="height: 120px"></div>
 
                     <div v-show="before">
                         <div class="prompt">
@@ -43,21 +44,6 @@
                         </div>
                     </div>
 
-                    <div v-show="before">
-                        <div class="prompt">
-                            你多大程度上信任自己的答案：
-                        </div>
-                        <div>
-                            <el-radio-group v-model="result[pointer].confidence" @change="giveRec">
-                                <template v-for="(item, index) in items">
-                                    <el-radio-button :label="index +1" :key="index"></el-radio-button>
-                                </template>
-                            </el-radio-group>
-                        </div>
-
-                        <div class="prompt"></div>
-                    </div>
-
                     <div v-show="!before">
                         <div class="prompt">
                             你的最终答案是？
@@ -70,6 +56,8 @@
                             </el-radio-group>
                         </div>
                     </div>
+
+                    <div style="height: 80px"></div>
 
                     <div v-show="!before">
                         <div class="prompt">
@@ -92,7 +80,7 @@
 
                 </div>
 
-                <el-dialog  title="预测"
+                <el-dialog  title="智能推荐助手"
                             :visible.sync="dialogVisable"
                             :before-close="handleClose"
                             center>
@@ -128,8 +116,8 @@
                 before: true,
                 items: [1,2,3,4,5,6,7],
                 result: [{
-                    answer: "31231",
-                    display: "3133?",
+                    answer: "123123",
+                    display: "21311?",
                     before: "",
                     after: "",
                     rate: "",
@@ -138,8 +126,8 @@
                     recAns: "1",
                     spendTime: 11
                 }, {
-                    answer: "23123",
-                    display: "2213?",
+                    answer: "231231",
+                    display: "22133?",
                     before: "",
                     after: "",
                     rate: "",
@@ -148,8 +136,8 @@
                     recAns: "2",
                     spendTime: 0
                 },{
-                    answer: "12312",
-                    display: "1211?",
+                    answer: "312312",
+                    display: "31231?",
                     before: "",
                     after: "",
                     rate: "",
@@ -164,8 +152,9 @@
             videoSrc: function () {
                 let pointer = this.pointer;
                 let person = this.result[pointer];
-                let url = "https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/"
-                url = `${url}${person.sexual}/${person.recAns}.mp4`;
+                let type = JSON.parse(sessionStorage.getItem('person')).testType;
+                let url = "https://91happy.oss-cn-shenzhen.aliyuncs.com/"
+                url = `${url}${type}/${person.sexual}/${person.recAns}.mp4`;
                 return url;
             }
         },
@@ -181,18 +170,6 @@
                 }, 1000);
             },
             giveRec() {
-                let pp = this.result[this.pointer];
-
-                if (!pp.before) {
-                    this.$message.warning("请选择答案");
-                    return;
-                };
-
-                if (!pp.confidence) {
-                    this.$message.warning("请选择信任度");
-                    return;
-                }
-
                 this.timeId ? clearInterval(this.timeId) : undefined;
                 this.timeId = undefined;
                 this.dialogVisable = true;
@@ -222,41 +199,43 @@
 <style scoped>
     .info {
         font-size: 35px;
-        color: white;
         text-align: center;
         margin-top: 300px;
     }
     .prompt {
         margin: 30px 0;
-        color: white;
         font-size: 22px;
     }
-    .box {
-        margin: 20px ;
-        font-size: 25px;
-        color: white;
-    }
     .time {
         display: inline-block;
         margin: 0 20px;
     }
     .wrap>div{
         text-align: center;
-    }.prompt {
+    }
+    .prompt {
          margin: 30px 0;
-         color: white;
          font-size: 22px;
      }
-    .box {
-        margin: 20px ;
-        font-size: 25px;
-        color: white;
-    }
     .time {
         display: inline-block;
         margin: 0 20px;
     }
     .wrap>div{
         text-align: center;
+    }
+    .header {
+        margin-top: 20px;
+        height: 40px;
+        font-size: 18px;
+    }
+    .left {
+        float: left;
+    }
+    .right {
+        float: right;
+    }
+    .blue {
+        color: #1b1be5;
     }
 </style>
