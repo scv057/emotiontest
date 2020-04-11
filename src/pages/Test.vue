@@ -4,7 +4,6 @@
             <div v-show="!finished && !rest">
                 <div class="header">
                     <div class="left">第{{ pointer +1 }}题</div>
-                    <el-button @click="show">click</el-button>
                     <div class="right">
                         答题倒计时
                         <div class="time">
@@ -85,7 +84,7 @@
                            :before-close="closeCount"
                            center>
                     上一轮答题情况：
-                    共计5题; 答对{{ succCount }}题
+                    共计6题; 答对{{ succCount }}题
                 </el-dialog>
             </div>
             <div v-show="finished" class="info">
@@ -229,9 +228,6 @@
             }
         },
         methods: {
-            show() {
-                console.log(this.result);
-            },
             mask(str) {
                 let res = "";
                 for (let i = 0; i < 5; i++) {
@@ -248,9 +244,9 @@
                 let self = this;
                 this.review = false;
                 this.succCount = 0;
-                if (this.pointer >= 39) {
+                if (this.pointer >= 47) {
                     this.finished = true;
-                } else if (this.pointer === 20){
+                } else if (this.pointer === 24){
                     self.rest = true;
                     clearInterval(this.timeId);
                     setTimeout(function () {
@@ -287,12 +283,12 @@
                 }
 
 
-                if ((this.pointer + 1) % 5 === 0) {
+                if ((this.pointer + 1) % 6 === 0) {
                     let p = this.pointer;
                     let succCount = 0;
-                    for (let i = 0; i < 5; i++) {
+                    for (let i = 0; i < 6; i++) {
                         let info = this.result[p - i];
-                        if (info.after === info.answer[4]) {
+                        if (info.after === info.answer[5]) {
                             succCount += 1;
                         }
                     }
@@ -300,7 +296,7 @@
                     this.review = true;
                 }
 
-                if (this.pointer === 39) {
+                if (this.pointer === 47) {
                     clearInterval(this.timeId);
                     const url = "/api";
                     let data = {};
