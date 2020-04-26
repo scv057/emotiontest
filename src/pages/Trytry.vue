@@ -110,7 +110,7 @@
             return {
                 status: 'pre',
                 timeId: undefined,
-                second: 10,
+                second: 20,
                 pointer: 0,
                 dialogVisable: false,
                 before: true,
@@ -173,6 +173,8 @@
                 this.timeId ? clearInterval(this.timeId) : undefined;
                 this.timeId = undefined;
                 this.dialogVisable = true;
+                let video = document.getElementById("recVideo");
+                video.play();
             },
             nextRound() {
                 if (this.pointer === 2) {
@@ -185,7 +187,7 @@
                     return;
                 }
                 this.pointer += 1;
-                this.second = 10;
+                this.second = 20;
                 this.before = true;
             },
             handleClose() {

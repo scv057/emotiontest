@@ -42,7 +42,7 @@
                             你的最终答案是？
                         </div>
                         <div>
-                            <el-radio-group v-model="result[pointer].after">
+                            <el-radio-group v-model="result[pointer].after" @change="clrTimer">
                                 <el-radio-button label="1"></el-radio-button>
                                 <el-radio-button label="2"></el-radio-button>
                                 <el-radio-button label="3"></el-radio-button>
@@ -88,10 +88,10 @@
                 </el-dialog>
             </div>
             <div v-show="finished" class="info">
-                恭喜你，完成了所有的测试！休息一下吧！
+                所有测试已完成，感谢你的参与
             </div>
             <div v-show="rest" class="info">
-                恭喜你完成一半了，休息30秒先吧！
+                实验完成一半，请先休息{{ t }}秒。
             </div>
             </template>
     </BasicLayout>
@@ -207,14 +207,16 @@
                 succCount: 0,
                 review: false,
                 timeId: undefined,
-                second: 10,
+                second: 20,
                 isInit: false,
                 pointer: 0,
-                sequence: "12312312",
+                sequence: "1231212312",
                 dialogVisable: false,
                 before: true,
                 items: [1,2,3,4,5,6,7],
-                result: []
+                result: [],
+                t: 30,
+                ttid: undefined
             }
         },
         computed: {
@@ -247,8 +249,14 @@
                 if (this.pointer >= 47) {
                     this.finished = true;
                 } else if (this.pointer === 24){
-                    self.rest = true;
                     clearInterval(this.timeId);
+                    self.rest = true;
+                    self.ttid = setInterval(function () {
+                        self.t -= 1;
+                        if (self.t <= 0) {
+                            clearInterval(self.ttid);
+                        }
+                    }, 1000)
                     setTimeout(function () {
                         self.rest = false;
                         self.subTime(0);
@@ -260,7 +268,7 @@
             subTime(status) {
                 this.timeId ? clearInterval(this.timeId) : undefined;
                 this.timeId = undefined;
-                this.second = 10;
+                this.second = 20;
                 let self = this;
                 this.timeId = setInterval(function () {
                     status ? self.result[self.pointer].spendTimeL += 1 : self.result[self.pointer].spendTime += 1;
@@ -332,7 +340,7 @@
                 video.play();
             },
             genAnum() {
-                let start = this.fg % 3;
+                let start = this.fg % 5;
                 let num = this.sequence.slice(start, start + 6);
                 this.fg += 1;
                 return num;
@@ -368,6 +376,9 @@
                         break
                 }
                 return String(r);
+            },
+            clrTimer(){
+                clearInterval(this.timeId);
             }
         }
     };
@@ -387,7 +398,6 @@
     }
     .info {
         font-size: 35px;
-        color: white;
         text-align: center;
         margin-top: 300px;
     }
