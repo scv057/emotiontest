@@ -106,9 +106,11 @@
             BasicLayout,
         },
         mounted() {
+            this.testType = JSON.parse(sessionStorage.getItem("person")).testType;
             // 初始化全局
             this.result = Array.from({length: 48}, () => {
                 let answer = this.genAnum();
+                // todo display 这逻辑是啥来着?以什么为准
                 let display = this.mask(answer);
                 return {
                     answer: answer, // 正确答案, 为六个数字
@@ -124,76 +126,97 @@
                     spendTimeL: 0   // 后面耗时
                 }
             });
-            this.testType = JSON.parse(sessionStorage.getItem("person")).testType;
 
-            let r = Math.random() < 0.5;
-            for (let i = 0; i < 2; i++) {
-                for (let j = 0; j < 24; j++) {
-                    if (r){
-                        if (i == 0) {
-                            this.result[i * 24 + j].reliability = 'high';
+            if (this.testType === "wave" || this.testType === "videos") {
+                let r = Boolean(Math.random() < 0.5);
+                let _tem_rate_map = {
+                    true: "high",
+                    false: "low"
+                };
+
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 24; j++) {
+                        if (i === 0) {
+                            this.result[i * 24 + j].reliability = _tem_rate_map[r];
                         } else {
-                            this.result[i * 24 + j].reliability = 'low';
-                        }
-                    } else {
-                        if (i == 1) {
-                            this.result[i * 24 + j].reliability = 'high';
-                        } else {
-                            this.result[i * 24 + j].reliability = 'low';
+                            this.result[i * 24 + j].reliability = _tem_rate_map[!r];
                         }
                     }
                 }
-            }
 
-            for (let i = 0; i < 2; i++) {
-                let r = Math.random() < 0.5;
-                for (let j = 0; j < 24; j++) {
-                    if (r) {
+                let _tem_sex_map = {
+                    true: "male",
+                    false: "female"
+                };
+                for (let i = 0; i < 2; i++) {
+                    let r = Boolean(Math.random() < 0.5);
+                    for (let j = 0; j < 24; j++) {
                         if (j < 12) {
-                            this.result[i * 24 + j].sexual = 'male';
+                            this.result[i * 24 + j].sexual = _tem_sex_map[r];
                         } else {
-                            this.result[i * 24 + j].sexual = 'female'
-                        }
-                    } else {
-                        if (j < 12) {
-                            this.result[i * 24 + j].sexual = 'female';
-                        } else {
-                            this.result[i * 24 + j].sexual = 'male'
+                            this.result[i * 24 + j].sexual = _tem_sex_map[!r];
                         }
                     }
+                }
+
+                // todo can improve
+                if (r) {
+                    // 前20个每五个抽一个
+                    for (let i = 0; i < 4; i++) {
+                        let idx = this.choice(1)[0];
+                        let iin = this.result[idx + 6 * i].recAns;
+                        let rec = this.change(iin);
+                        this.result[idx + 6 * i].recAns = rec;
+                    }
+                    // 后20个每五个抽三个
+                    for (let i = 0; i < 4; i++) {
+                        let idx = this.choice(3);
+                        for (let j of idx) {
+                            let iin = this.result[j + 6 * i + 24].recAns;
+                            this.result[j + 6 * i + 24].recAns = this.change(iin);
+                        }
+                    }
+                } else {
+                    for (let i = 0; i < 4; i++) {
+                        let idx = this.choice(1)[0];
+                        let iin = this.result[idx + 6 * i + 24].recAns;
+                        this.result[idx + 6 * i + 24].recAns = this.change(iin);
+                    }
+                    for (let i = 0; i < 4; i++) {
+                        let idx = this.choice(3);
+                        for (let j of idx) {
+                            let iin = this.result[j + 6 * i].recAns;
+                            this.result[j + 6 * i].recAns = this.change(iin);
+                        }
+                    }
+                }
+            } else if (this.testType === "page3" || this.testType === "page4") {
+                // 初始化 可靠性
+                for (let i = 0; i < 2; i++) {
+                    for (let j = 0; j < 24; j++) {
+                        if (i === 0) {
+                            this.result[i * 24 + j].reliability = "100";
+                        } else {
+                            this.result[i * 24 + j].reliability = "2/3";
+                        }
+                    }
+                }
+
+                // 初始化性别
+                let _sexArr = this.choice(24, 48);
+                for (let i = 0; i < 48; i++) {
+                    _sexArr.indexOf(i) > -1 ? this.result[i].sexual = 'male' : this.result[i].sexual = 'female'
+                }
+
+                // 初始化推荐答案
+                let _wrongArr = this.choice(8, 24).map(x => x + 24);
+                for (let i of _wrongArr) {
+                    this.result[i].recAns = this.change(this.result[i].recAns);
                 }
             }
 
-            if (r) {
-                // 前20个每五个抽一个
-                for (let i = 0; i < 4; i++) {
-                    let idx = this.choice(1)[0];
-                    let iin = this.result[idx + 6 * i].recAns;
-                    let rec = this.change(iin);
-                    this.result[idx + 6 * i].recAns = rec;
-                }
-                // 后20个每五个抽三个
-                for (let i = 0; i < 4; i++) {
-                    let idx = this.choice(3);
-                    for (let j of idx) {
-                        let iin = this.result[j + 6 * i + 24].recAns;
-                        this.result[j + 6 * i + 24].recAns = this.change(iin);
-                    }
-                }
-            } else {
-                for (let i = 0; i < 4; i++) {
-                    let idx = this.choice(1)[0];
-                    let iin = this.result[idx + 6 * i + 24].recAns;
-                    this.result[idx + 6 * i + 24].recAns = this.change(iin);
-                }
-                for (let i = 0; i < 4; i++) {
-                    let idx = this.choice(3);
-                    for (let j of idx) {
-                        let iin = this.result[j + 6 * i].recAns;
-                        this.result[j + 6 * i].recAns = this.change(iin);
-                    }
-                }
-            }
+            // todo 单元测试
+            console.log(this.result);
 
             this.isInit = true;
             this.$nextTick(this.subTime);
@@ -224,8 +247,9 @@
                 let pointer = this.pointer;
                 let person = this.result[pointer];
                 let type = this.testType;
+
                 let url = "https://91happy.oss-cn-shenzhen.aliyuncs.com/"
-                url = `${url}${type}/${person.sexual}/${person.recAns}.mp4`;
+                url = `${url}${type === "page3" || type === "page4" ? "videos" : type}/${person.sexual}/${person.recAns}.mp4`;
                 return url;
             }
         },
@@ -248,7 +272,7 @@
                 this.succCount = 0;
                 if (this.pointer >= 47) {
                     this.finished = true;
-                } else if (this.pointer === 24){
+                } else if (this.pointer === 24 && this.testType !== "page3" && this.testType !== "page4") {
                     clearInterval(this.timeId);
                     self.rest = true;
                     self.ttid = setInterval(function () {
@@ -309,7 +333,7 @@
                     const url = "/api";
                     let data = {};
                     let person = JSON.parse(sessionStorage.getItem('person'));
-                    person.testType === "videos" ? person.testType = 'human' : person.testType = 'wave';
+                    person.testType === "videos" ? person.testType = 'human' : undefined;
                     data['person'] = person;
                     data['result'] = this.result;
                     fetch(url, {
@@ -350,15 +374,25 @@
                 this.dialogVisable = false;
                 this.subTime(1);
             },
-            choice(num) {
+            // choice(num) {
+            //     let res = [];
+            //     for (let i = 0; i < num; i++) {
+            //         let n = parseInt(Math.random() * 5);
+            //         if (n in res) {
+            //             res.push(n + 1);
+            //         } else {
+            //             res.push(parseInt(Math.random() * 5));
+            //         }
+            //     }
+            //     return res;
+            // },
+            choice(count, all = 6) {
+                let arr = [...Array(all).keys()];
                 let res = [];
-                for (let i = 0; i < num; i++) {
-                    let n = parseInt(Math.random() * 5);
-                    if (n in res) {
-                        res.push(n + 1);
-                    } else {
-                        res.push(parseInt(Math.random() * 5));
-                    }
+                while (res.length < count) {
+                    let n = parseInt(Math.random() * (arr.length - 1));
+                    res.push(arr[n]);
+                    arr.splice(n, 1);
                 }
                 return res;
             },

@@ -154,7 +154,7 @@
                 let person = this.result[pointer];
                 let type = JSON.parse(sessionStorage.getItem('person')).testType;
                 let url = "https://91happy.oss-cn-shenzhen.aliyuncs.com/"
-                url = `${url}${type}/${person.sexual}/${person.recAns}.mp4`;
+                url = `${url}${type === "page3" || type === "page4" ? "videos" : type}/${person.sexual}/${person.recAns}.mp4`;
                 return url;
             }
         },

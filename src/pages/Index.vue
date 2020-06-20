@@ -64,7 +64,19 @@
                 this.$refs['form'].validate(
                     (valid) =>{
                         if (valid) {
-                            window.location.href.match("test1") ? this.info.testType = "wave" : this.info.testType = "videos";
+                            let _tem = window.location.href.split(/\/test/);
+                            if (_tem.length === 1) {
+                                this.info.testType = "videos"
+                            } else if (_tem[1].startsWith('1')) {
+                                this.info.testType = "wave";
+                            } else if (_tem[1].startsWith('3')) {
+                                this.info.testType = "page3";
+                            } else if (_tem[1].startsWith('4')) {
+                                this.info.testType = "page4";
+                            } else {
+                                this.info.testType = "videos"
+                            }
+                            // window.location.href.match("test1") ? this.info.testType = "wave" : this.info.testType = "videos";
                             sessionStorage.setItem('person', JSON.stringify(this.info));
                             this.$message.info("点击登录后， 先开始3个练习题，然后才是正式答题。");
                             setTimeout(() => {
