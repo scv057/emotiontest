@@ -79,12 +79,43 @@
                             center>
                     <video slot="footer" class="el-dialog--center" :src="videoSrc" typeof="video/mp4" controls="controls" id="recVideo" width="480" height="480" ></video>
                 </el-dialog>
+
+                <el-dialog  title="智能助理"
+                            :visible.sync="fb_ass_vis"
+                            :before-close="fb_ass_close"
+                            center>
+                    <video slot="footer" class="el-dialog--center" :src="fbSrc" typeof="video/mp4" controls="controls" id="fbVideo" width="480" height="480" ></video>
+                </el-dialog>
+
                 <el-dialog title="统计"
                            :visible.sync="review"
                            :before-close="closeCount"
                            center>
                     上一轮答题情况：
                     共计6题; 答对{{ succCount }}题
+                </el-dialog>
+
+                <el-dialog title="答题反馈"
+                           :visible="fb_vis"
+                           :show-close="false"
+                           center>
+                    <el-form v-model="fb_form" label-positio="right" label-width="220px" id="fb_form">
+                        <el-form-item label="我应对答题结果负责">
+                            <el-rate :max="7" v-model="fb_form.responseI"></el-rate>
+                        </el-form-item>
+                        <el-form-item label="系统助理应对答题结果负责">
+                            <el-rate :max="7" v-model="fb_form.responseU"></el-rate>
+                        </el-form-item>
+                        <el-form-item label="你认为谁对答题结果负主要责任">
+                            <el-radio-group v-model="fb_form.responseOf">
+                                <el-radio :label="0">我</el-radio>
+                                <el-radio :label="1">系统助理</el-radio>
+                            </el-radio-group>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="add_fb_result">确认提交</el-button>
+                        </el-form-item>
+                    </el-form>
                 </el-dialog>
             </div>
             <div v-show="finished" class="info">
@@ -239,7 +270,20 @@
                 items: [1,2,3,4,5,6,7],
                 result: [],
                 t: 30,
-                ttid: undefined
+                ttid: undefined,
+                // 管理是否需要弹出fb的状态
+                feedback: false,
+                fb_status: "ok",
+                fbSrc: "",
+
+                fb_vis: false,
+                fb_ass_vis: false,
+                fb_result: [],
+                fb_form: {
+                    responseI: 0,
+                    responseU: 0,
+                    responseOf: 0,
+                }
             }
         },
         computed: {
@@ -266,7 +310,31 @@
                 }
                 return res+"?";
             },
+            fb_ass_close() {
+                // 关闭助手
+                this.fb_ass_vis = false;
+                this.fb_vis = true;
+            },
+            add_fb_result() {
+                let dpcp = JSON.parse(JSON.stringify(this.fb_form))
+                this.fb_result.push({response: dpcp, video: this.fbSrc});
+                this.fb_vis = false;
+                this.fb_form.responseI = 0;
+                this.fb_form.responseU = 0;
+                this.fb_form.responseOf = 0;
+            },
             closeCount() {
+                if (this.testType === "page3" || this.fb_status === "not") {
+                    let vSrc;
+                    this.succCount <= 3 ? vSrc = "https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/f-123.mp4": vSrc = "https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/f-456.mp4";
+                    this.fbSrc = vSrc;
+                    this.fb_ass_vis = true;
+                    return;
+                } else if (this.testType === "page4") {
+                    this.fb_vis = true;
+                    return;
+                }
+
                 let self = this;
                 this.review = false;
                 this.succCount = 0;
@@ -280,7 +348,7 @@
                         if (self.t <= 0) {
                             clearInterval(self.ttid);
                         }
-                    }, 1000)
+                    }, 1000);
                     setTimeout(function () {
                         self.rest = false;
                         self.subTime(0);
@@ -299,18 +367,18 @@
                     if (self.second > 0) {
                         self.second -= 1;
                     } else {
-                        self.$message({
-                            type: 'warning',
-                            message: "请立刻做答！！",
-                            duration: 1000
-                        })
+                        // self.$message({
+                        //     type: 'warning',
+                        //     message: "请立刻做答！！",
+                        //     duration: 1000
+                        // })
                     }
                 }, 1000);
             },
             nextRound() {
                 let t = this.result[this.pointer];
                 if (!t.after || !t.rate) {
-                    this.$message.warning("请先完成做答");
+                    // this.$message.warning("请先完成做答");
                     return;
                 }
 
