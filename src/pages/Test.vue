@@ -234,9 +234,19 @@
                 }
 
                 // 初始化性别
-                let _sexArr = this.choice(24, 48);
-                for (let i = 0; i < 48; i++) {
-                    _sexArr.indexOf(i) > -1 ? this.result[i].sexual = 'male' : this.result[i].sexual = 'female'
+                let _tem_sex_map = {
+                    true: "male",
+                    false: "female"
+                };
+                for (let i = 0; i < 2; i++) {
+                    let r = Boolean(Math.random() < 0.5);
+                    for (let j = 0; j < 24; j++) {
+                        if (j < 12) {
+                            this.result[i * 24 + j].sexual = _tem_sex_map[r];
+                        } else {
+                            this.result[i * 24 + j].sexual = _tem_sex_map[!r];
+                        }
+                    }
                 }
 
                 // 初始化推荐答案
@@ -282,7 +292,7 @@
                 fb_form: {
                     responseI: 0,
                     responseU: 0,
-                    responseOf: 0,
+                    responseOf: null,
                 }
             }
         },
@@ -311,32 +321,59 @@
                 return res+"?";
             },
             fb_ass_close() {
-                // 关闭助手
                 this.fb_ass_vis = false;
                 this.fb_vis = true;
             },
             add_fb_result() {
                 let dpcp = JSON.parse(JSON.stringify(this.fb_form))
-                this.fb_result.push({response: dpcp, video: this.fbSrc});
+                this.fb_result.push({response: dpcp, video: this.fbSrcthis.fbSrc ? this.fbSrc :""});
                 this.fb_vis = false;
                 this.fb_form.responseI = 0;
                 this.fb_form.responseU = 0;
-                this.fb_form.responseOf = 0;
+                this.fb_form.responseOf = null;
+                if (this.pointer >= 47) {
+                    this.finished = true;
+                    let url = "/api2";
+                    let data = [];
+                    let person = JSON.parse(sessionStorage.getItem('person'));
+                    person.testType === "videos" ? person.testType = 'human' : undefined;
+                    data['person'] = person;
+                    data['result'] = this.fb_result;
+                    fetch(url, {
+                        method: 'POST',
+                        body: JSON.stringify(data),
+                        headers: new Headers({
+                            'Content-Type': 'application/json'
+                        })
+                    }).then((res) => {
+                        console.log(res);
+                    }).catch(err => {
+                        console.log(err)
+                    });
+                }
             },
             closeCount() {
+                this.review = false;
+                let self = this;
                 if (this.testType === "page3" || this.fb_status === "not") {
-                    let vSrc;
-                    this.succCount <= 3 ? vSrc = "https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/f-123.mp4": vSrc = "https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/f-456.mp4";
-                    this.fbSrc = vSrc;
                     this.fb_ass_vis = true;
+                    let video = document.getElementById("fbVideo");
+                    let playPromise  =  video.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(function() {
+                            // Automatic playback started!
+                        }).catch(function() {
+                            // Automatic playback failed.
+                            // Show a UI element to let the user manually start playback.
+                            self.$message("不支持自动播放，请手动播放");
+                        });
+                    }
                     return;
                 } else if (this.testType === "page4") {
                     this.fb_vis = true;
                     return;
                 }
 
-                let self = this;
-                this.review = false;
                 this.succCount = 0;
                 if (this.pointer >= 47) {
                     this.finished = true;
@@ -367,21 +404,20 @@
                     if (self.second > 0) {
                         self.second -= 1;
                     } else {
-                        // self.$message({
-                        //     type: 'warning',
-                        //     message: "请立刻做答！！",
-                        //     duration: 1000
-                        // })
+                        self.$message({
+                            type: 'warning',
+                            message: "请立刻做答！！",
+                            duration: 1000
+                        })
                     }
                 }, 1000);
             },
             nextRound() {
                 let t = this.result[this.pointer];
                 if (!t.after || !t.rate) {
-                    // this.$message.warning("请先完成做答");
+                    this.$message.warning("请先完成做答");
                     return;
                 }
-
 
                 if ((this.pointer + 1) % 6 === 0) {
                     let p = this.pointer;
@@ -393,6 +429,12 @@
                         }
                     }
                     this.succCount = succCount;
+                    // 在这里加载视频
+                    if (this.testType === "page3" || this.fb_status === "not") {
+                        let t = this.succCount <= 3 ? "123" : "456";
+                        let s = this.result[this.pointer - 1].sexual[0];
+                        this.fbSrc = `https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/${s}-${t}.mp4`;
+                    }
                     this.review = true;
                 }
 
@@ -520,5 +562,11 @@
     }
     .blue {
         color: #1b1be5;
+    }
+</style>
+
+<style>
+    #fb_form label.el-form-item__label, #fb_form label.el-radio>*{
+        color: black;
     }
 </style>

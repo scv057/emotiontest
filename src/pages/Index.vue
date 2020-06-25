@@ -167,7 +167,7 @@
 </style>
 
 <style>
-    label.el-form-item__label, label.el-radio>*{
+    label.el-form-item__label, label.el-radio>* {
         color: white;
     }
 </style>
