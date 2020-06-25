@@ -326,7 +326,7 @@
             },
             add_fb_result() {
                 let dpcp = JSON.parse(JSON.stringify(this.fb_form))
-                this.fb_result.push({response: dpcp, video: this.fbSrcthis.fbSrc ? this.fbSrc :""});
+                this.fb_result.push({response: dpcp, video: this.fbSrc ? this.fbSrc :""});
                 this.fb_vis = false;
                 this.fb_form.responseI = 0;
                 this.fb_form.responseU = 0;
