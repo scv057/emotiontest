@@ -258,6 +258,7 @@
 
             // todo 单元测试
             console.log(this.result);
+            window.__vm__ = this;
 
             this.isInit = true;
             this.$nextTick(this.subTime);
@@ -333,12 +334,13 @@
                 this.fb_form.responseOf = null;
                 if (this.pointer >= 47) {
                     this.finished = true;
-                    let url = "/api2";
-                    let data = [];
+                    let url = "/api";
+                    let data = {};
                     let person = JSON.parse(sessionStorage.getItem('person'));
                     person.testType === "videos" ? person.testType = 'human' : undefined;
                     data['person'] = person;
-                    data['result'] = this.fb_result;
+                    data['result'] = this.result;
+                    data['result2'] = this.fb_result;
                     fetch(url, {
                         method: 'POST',
                         body: JSON.stringify(data),
@@ -375,8 +377,30 @@
                 }
 
                 this.succCount = 0;
+                // todo 关闭提示后上传信息
                 if (this.pointer >= 47) {
                     this.finished = true;
+                    if (this.testType === 'videos' || this.testType === 'wave') {
+                        const url = "/api";
+                        let data = {};
+                        let person = JSON.parse(sessionStorage.getItem('person'));
+                        person.testType === "videos" ? person.testType = 'human' : undefined;
+                        data['person'] = person;
+                        data['result'] = this.result;
+                        data['result2'] = [];
+
+                        fetch(url, {
+                            method: 'POST',
+                            body: JSON.stringify(data),
+                            headers: new Headers({
+                                'Content-Type': 'application/json'
+                            })
+                        }).then(res => {
+                            console.log(res);
+                        }).catch(error => {
+                            console.error('Error:', error)
+                        });
+                    }
                 } else if (this.pointer === 24 && this.testType !== "page3" && this.testType !== "page4") {
                     clearInterval(this.timeId);
                     self.rest = true;
@@ -440,23 +464,6 @@
 
                 if (this.pointer === 47) {
                     clearInterval(this.timeId);
-                    const url = "/api";
-                    let data = {};
-                    let person = JSON.parse(sessionStorage.getItem('person'));
-                    person.testType === "videos" ? person.testType = 'human' : undefined;
-                    data['person'] = person;
-                    data['result'] = this.result;
-                    fetch(url, {
-                        method: 'POST',
-                        body: JSON.stringify(data),
-                        headers: new Headers({
-                            'Content-Type': 'application/json'
-                        })
-                    }).then(res => {
-                            console.log(res);
-                    }).catch(error => {
-                            console.error('Error:', error)
-                        });
                     return;
                 }
 
