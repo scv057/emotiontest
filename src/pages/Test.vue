@@ -12,7 +12,7 @@
                     </div>
                 </div>
                 <hr>
-                <div class="wrap">
+              <div class="wrap">
                     <div>
                         <div class="prompt">
                             请预测下一位数字是
@@ -428,11 +428,11 @@
                     if (self.second > 0) {
                         self.second -= 1;
                     } else {
-                        self.$message({
-                            type: 'warning',
-                            message: "请立刻做答！！",
-                            duration: 1000
-                        })
+                        // self.$message({
+                        //     type: 'warning',
+                        //     message: "请立刻做答！！",
+                        //     duration: 1000
+                        // })
                     }
                 }, 1000);
             },
