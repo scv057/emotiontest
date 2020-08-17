@@ -134,6 +134,7 @@ export default {
   data() {
     return {
       amiright: false,
+      timeID: undefined,
       rateRange: [1, 2, 3, 4, 5, 6, 7],
       item: [
         {
@@ -270,9 +271,14 @@ export default {
       let i = this.item[this.pointer];
       if (i.answer && i.trust) {
         this.amiright = true;
+        i.endTime = new Date().getTime();
+        console.log(i);
       } else {
         this.$message.warning('请做出选择');
       }
+    },
+    subTime() {
+
     },
     showPrediction() {
       // todo 展示预测
@@ -283,11 +289,28 @@ export default {
     handleClose() {
       this.dialogVisable = false;
       this.showP = true;
+      // todo 开始计时
+      let i = this.item[this.pointer];
+      i.startTime = new Date().getTime();
+      this.subTime();
     },
     onedone() {
       if (this.pointer === 11) {
         this.finished = true;
         // todo 上传保存
+        const url = "/api111";
+        let data = {};
+        fetch(url, {
+          method: 'POST',
+          body: JSON.stringify(data),
+          headers: new Headers({
+            'Content-Type': 'application/json'
+          })
+        }).then((res) => {
+          console.log(res);
+        }).catch(err => {
+          console.log(err)
+        });
       } else {
         this.pointer += 1;
       }
