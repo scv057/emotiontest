@@ -118,7 +118,7 @@ export default {
     },
     videoSrc() {
       // todo 补充视频链接
-      let t = 'd';
+      let t = this.testMap[this.testType];
       let p = this.item[this.pointer].prediction;
       return `https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/heath/${t}${p}.mp4`
     },
@@ -133,6 +133,12 @@ export default {
   },
   data() {
     return {
+      testMap: {
+        heathD: 'd',
+        heathW: 'w',
+        heathN: 'n'
+      },
+      testType: undefined,
       amiright: false,
       timeID: undefined,
       rateRange: [1, 2, 3, 4, 5, 6, 7],
@@ -263,7 +269,7 @@ export default {
       second: 20,
       showP: false,
       dialogVisable: false,
-    }
+    };
   },
   methods: {
     nextRound() {
@@ -272,19 +278,40 @@ export default {
       if (i.answer && i.trust) {
         this.amiright = true;
         i.endTime = new Date().getTime();
-        console.log(i);
+        clearInterval(this.timeID);
+        this.timeID = undefined;
+        if (this.pointer === 11) {
+          this.upload();
+        }
       } else {
         this.$message.warning('请做出选择');
       }
     },
     subTime() {
-
+      this.timeID ?
+          clearInterval(this.timeId) :
+          this.timeId = undefined;
+      this.second = 20;
+      let self = this;
+      this.timeID = setInterval(function () {
+        if (self.second > 0) {
+          self.second -= 1;
+        } else {
+          self.$message({
+            type: 'warning',
+            message: "请立刻做答！！",
+            duration: 1000
+          })
+        }
+      }, 1000);
     },
     showPrediction() {
       // todo 展示预测
       this.dialogVisable = true;
-      // let video = document.getElementById("recVideo");
-      // video.play();
+      let video = document.getElementById("recVideo");
+      if (video) {
+        video.play();
+      }
     },
     handleClose() {
       this.dialogVisable = false;
@@ -297,27 +324,34 @@ export default {
     onedone() {
       if (this.pointer === 11) {
         this.finished = true;
-        // todo 上传保存
-        const url = "/api111";
-        let data = {};
-        fetch(url, {
-          method: 'POST',
-          body: JSON.stringify(data),
-          headers: new Headers({
-            'Content-Type': 'application/json'
-          })
-        }).then((res) => {
-          console.log(res);
-        }).catch(err => {
-          console.log(err)
-        });
       } else {
         this.pointer += 1;
       }
+      this.second = 20;
       this.amiright = false;
       this.showP = false;
+    },
+    upload() {
+      const url = "/api/111";
+      let data = {};
+      data['person'] = JSON.parse(sessionStorage.getItem('person'));
+      data['result'] = this.item;
+      fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: new Headers({
+          'Content-Type': 'application/json'
+        })
+      }).then((res) => {
+        console.log(res);
+      }).catch(err => {
+        console.log(err)
+      });
     }
   },
+  mounted() {
+    this.testType = JSON.parse(sessionStorage.getItem('person')).testType;
+  }
 };
 </script>
 

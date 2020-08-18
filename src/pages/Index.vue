@@ -73,15 +73,27 @@
                                 this.info.testType = "page3";
                             } else if (_tem[1].startsWith('4')) {
                                 this.info.testType = "page4";
+                            } else if (_tem[1].startsWith('5')) {
+                                this.info.testType = "heathD"
+                            } else if (_tem[1].startsWith('6')) {
+                                this.info.testType = "heathW"
+                            } else if (_tem[1].startsWith('6')) {
+                                this.info.testType = "heathN"
                             } else {
-                                this.info.testType = "videos"
+                              this.info.testType = "videos";
                             }
                             // window.location.href.match("test1") ? this.info.testType = "wave" : this.info.testType = "videos";
                             sessionStorage.setItem('person', JSON.stringify(this.info));
                             this.$message.info("点击登录后， 先开始3个练习题，然后才是正式答题。");
-                            setTimeout(() => {
-                                this.$router.push({path: 'try'})
-                            }, 2000)
+                          setTimeout(() => {
+                            // todo 跳转到不同的测试
+                            let t = _tem[1][0]
+                            if (['5', '6', '7'].indexOf(t) !== -1) {
+                              this.$router.push({path: 'heathtest'});
+                            } else {
+                              this.$router.push({path: 'try'})
+                            }
+                          }, 2000);
                         } else {
                             this.$message.warning("请填写完个人信息");
                         }
