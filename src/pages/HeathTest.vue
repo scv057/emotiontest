@@ -225,19 +225,17 @@ export default {
     onedone() {
       if (this.pointer === 2) {
         this.finished = true;
+        let self = this;
+        this.$message.info("恭喜你已经完成了练习");
+        setTimeout(function () {
+          self.$router.push({path: '/heath'})
+        }, 2000);
       } else {
         this.pointer += 1;
       }
       this.second = 20;
       this.amiright = false;
       this.showP = false;
-      if (this.pointer === 2) {
-        let self = this;
-        this.$message.info("恭喜你已经完成了练习");
-        setTimeout(function () {
-          self.$router.push({path: '/heath'})
-        }, 2000);
-      }
     },
   },
 };

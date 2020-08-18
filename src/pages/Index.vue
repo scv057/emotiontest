@@ -77,7 +77,7 @@
                                 this.info.testType = "heathD"
                             } else if (_tem[1].startsWith('6')) {
                                 this.info.testType = "heathW"
-                            } else if (_tem[1].startsWith('6')) {
+                            } else if (_tem[1].startsWith('7')) {
                                 this.info.testType = "heathN"
                             } else {
                               this.info.testType = "videos";
