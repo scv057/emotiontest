@@ -75,13 +75,13 @@
               你认为该种情况下，是否应该去医院检查
             </div>
             <div id="gohos">
-              <el-radio
-                  v-model="item[pointer].answer"
-                  label="A.去做检查">A.去做检查</el-radio>
-              <el-radio
-                  v-model="item[pointer].answer"
-                  label="B.不去做检查">B.不去做检查</el-radio>
-
+              <el-radio-group v-model="item[pointer].answer"
+                              @change="timeend">
+                <el-radio
+                    label="A.去做检查">A.去做检查</el-radio>
+                <el-radio
+                    label="B.不去做检查">B.不去做检查</el-radio>
+              </el-radio-group>
             </div>
             <div class="prompt">
               你多大程度上信任助理的推荐
@@ -272,12 +272,16 @@ export default {
     };
   },
   methods: {
+    timeend() {
+      let i = this.item[this.pointer];
+      i.endTime = new Date().getTime();
+      console.log(i);
+    },
     nextRound() {
       // todo check
       let i = this.item[this.pointer];
       if (i.answer && i.trust) {
         this.amiright = true;
-        i.endTime = new Date().getTime();
         clearInterval(this.timeID);
         this.timeID = undefined;
         if (this.pointer === 11) {
