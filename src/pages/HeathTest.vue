@@ -118,7 +118,7 @@ export default {
     },
     videoSrc() {
       // todo 补充视频链接
-      let t = 'd';
+      let t = this.testMap[this.testType];
       let p = this.item[this.pointer].prediction;
       return `https://91happy.oss-cn-shenzhen.aliyuncs.com/videos/heath/${t}${p}.mp4`
     },
@@ -133,6 +133,12 @@ export default {
   },
   data() {
     return {
+      testMap: {
+        heathD: 'd',
+        heathW: 'w',
+        heathN: 'n'
+      },
+      testType: undefined,
       amiright: false,
       timeID: undefined,
       rateRange: [1, 2, 3, 4, 5, 6, 7],
@@ -238,6 +244,9 @@ export default {
       this.showP = false;
     },
   },
+  mounted() {
+    this.testType = JSON.parse(sessionStorage.getItem('person')).testType;
+  }
 };
 </script>
 
